@@ -1,0 +1,164 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Documentation – Biomass Field Sampler</title><meta name="description" content="Biomass Field Sampler: offline field app for tree biomass and forest carbon inventories in Africa.">
+<link rel="icon" href="demo/app/icons/icon-192.png"><link rel="stylesheet" href="assets/style.css"></head><body>
+<header class="top"><div class="wrap"><a class="logo" href="index.html"><i></i>Biomass Field Sampler</a>
+<nav class="main"><a href="index.html" class="">Home</a><a href="tutorial.html" class="">Tutorial</a><a href="docs.html" class="on">Documentation</a><a href="demo.html" class=" cta">Try the demo</a></nav></div></header><div class="wrap"><div class="doc">
+<aside class="toc"><b>Contents</b><a href="#overview">Overview</a><a href="#plots">Plot design</a><a href="#workflow">Recording data</a><a href="#dbh">Diameter</a><a href="#agb">Above-ground biomass</a><a href="#bgb">Below-ground biomass</a><a href="#wd">Wood density</a><a href="#carbon">Carbon and CO₂e</a><a href="#stumps">Dead wood (stumps)</a><a href="#perha">Per-hectare values</a><a href="#stats">Averages and confidence</a><a href="#estimate">Project estimate</a><a href="#qa">Data quality checks</a><a href="#exports">Exports</a><a href="#excel">Excel workbook</a><a href="#lite">Lite app</a><a href="#backup">Sharing and backup</a><a href="#gps">GPS accuracy</a><a href="#species">Species list</a><a href="#settings">Settings</a><a href="#install">Installing the app</a><a href="#privacy">Data and privacy</a><a href="#refs">References</a></aside>
+<div class="prose">
+<h2 id="overview">Overview</h2>
+<p>Biomass Field Sampler records forest inventory plots and calculates above- and below-ground biomass, carbon and CO₂ equivalent for every stem. It also gives per-hectare values for each plot, averages by stratum and site, and a stratified project estimate. It is a progressive web app: one HTML file that installs on a phone or computer and works offline.</p>
+<p>There are two apps. The <b>full app</b> is for project teams: plot register, four record sections, dashboard, quality checks, model selection, exports and backup. <b>Biomass Sampler Lite</b> is a step-by-step version for field helpers and community members. It uses the same calculation engine with the defaults fixed.</p>
+
+<h2 id="plots">Plot design</h2>
+<p>Each sampling point is a set of nested circular plots sharing one centre. Each section is measured only inside its own circle, and its results are divided by that circle's area.</p>
+<div class="tbl"><table><tr><th>Section</th><th>What is recorded</th><th>Default radius</th><th>Area</th></tr>
+<tr><td>Regeneration (young plants)</td><td>Species and number of plants below sapling size</td><td>5 m</td><td>78.5 m²</td></tr>
+<tr><td>Sapling (small trees)</td><td>DBH 5–9.9 cm (about 16–31 cm around)</td><td>14 m</td><td>615.8 m²</td></tr>
+<tr><td>Tree (big trees)</td><td>DBH ≥ 10 cm (32 cm or more around)</td><td>20 m</td><td>1,256.6 m²</td></tr>
+<tr><td>Stump (dead wood)</td><td>Diameter and height of cut or broken stumps</td><td>20 m</td><td>1,256.6 m²</td></tr></table></div>
+<p><b>Custom radii.</b> Every plot stores its own four radii. New plots start from the defaults in settings, or in Lite from the last sizes used. The stump radius follows the tree radius unless you change it.</p>
+
+<h2 id="workflow">Recording data</h2>
+<ol><li><b>Plot</b>: site and district (add your own), plot number and ID, stratum (dropdown with <i>+ Add new stratum…</i>), date, crew, centre coordinate, radii and, optionally, a plot-specific model.</li>
+<li><b>Records</b>: in each section, search a tree by local, English or scientific name. The scientific name, species code and wood density fill in automatically. Enter the tape reading as circumference or diameter, and the height where needed.</li>
+<li><b>Check</b>: the dashboard and Results update immediately, and the data quality checks list anything to fix.</li>
+<li><b>Export and back up</b>: see <a href="#exports">Exports</a> and <a href="#backup">Sharing and backup</a>.</li></ol>
+<p>Every record can be edited or deleted, with Undo. Records always belong to the plot that was active when they were entered.</p>
+
+<h2 id="dbh">Diameter</h2>
+<p>When a circumference (girth) is entered, DBH is calculated as:</p>
+<div class="eq">D (cm) = C (cm) ÷ π</div>
+
+<h2 id="agb">Above-ground biomass (AGB)</h2>
+<p>Choose the model under Export &amp; settings (project default) or on each plot form. D is DBH in cm, H is total height in m, ρ is wood density in g/cm³, and AGB is in kg.</p>
+<div class="tbl"><table><tr><th>Model</th><th>Equation</th><th>Needs</th><th>DBH range (cm)</th></tr>
+<tr><td>Chidumayo (2012), Zambia national model <i>(default)</i></td><td>exp(2.342·ln D − 2.059)</td><td>D</td><td>–</td></tr>
+<tr><td>Chave et al. (2014), pantropical</td><td>0.0673·(ρ·D²·H)<sup>0.976</sup></td><td>D, H, ρ</td><td>5–180</td></tr>
+<tr><td>Chave et al. (2005), dry forest</td><td>0.112·(ρ·D²·H)<sup>0.916</sup></td><td>D, H, ρ</td><td>5–156</td></tr>
+<tr><td>Chave et al. (2005), dry forest, no height</td><td>ρ·exp(−0.667 + 1.784·ln D + 0.207·(ln D)² − 0.0281·(ln D)³)</td><td>D, ρ</td><td>5–156</td></tr>
+<tr><td>Mugasha et al. (2013), miombo</td><td>0.1027·D<sup>2.4798</sup></td><td>D</td><td>1.1–110</td></tr>
+<tr><td>Mugasha et al. (2013), miombo with height</td><td>0.0763·D<sup>2.2046</sup>·H<sup>0.4918</sup></td><td>D, H</td><td>1.1–110</td></tr>
+<tr><td>Kachamba, Eid &amp; Gobakken (2016), Malawi miombo</td><td>0.103685·D<sup>1.921719</sup>·H<sup>0.844561</sup></td><td>D, H</td><td>5.3–111.2</td></tr>
+<tr><td>Ryan, Williams &amp; Grace (2011), Mozambique miombo</td><td>exp(2.601·ln D − 3.629) ÷ 0.47</td><td>D</td><td>5–73</td></tr>
+<tr><td>Custom</td><td>exp(a·ln D + b), with a and b set in settings</td><td>D</td><td>–</td></tr></table></div>
+<p><b>Missing height.</b> If a model needs height and a stem has none, that stem uses a diameter-only model: Chave 2005 dry forest (no height) for the Chave models, and Mugasha 2013 for the others. The stem is flagged in the data quality checks and in the exports.</p>
+<p><b>Outside the range.</b> Stems with DBH outside the range used to fit a model are still calculated, but flagged.</p>
+<p><b>Ryan (2011)</b> gives carbon, so the app divides by 0.47 to convert it to biomass.</p>
+<div class="note">Carbon standards such as Verra's VMD0001 require each project to justify its allometric equation for its forest type. Check your methodology before choosing a model.</div>
+
+<h2 id="bgb">Below-ground biomass (BGB)</h2>
+<div class="tbl"><table><tr><th>Option</th><th>Equation (kg)</th></tr>
+<tr><td>IPCC root-to-shoot ratio <i>(default)</i></td><td>BGB = AGB × R, with R = 0.28 (editable)</td></tr>
+<tr><td>Mugasha et al. (2013)</td><td>0.2113·D<sup>1.9838</sup></td></tr>
+<tr><td>Kachamba et al. (2016)</td><td>0.284615·D<sup>1.992658</sup></td></tr>
+<tr><td>Ryan et al. (2011)</td><td>exp(2.262·ln D − 3.370) ÷ 0.47</td></tr></table></div>
+
+<h2 id="wd">Wood density</h2>
+<p>Each stem uses the first of these that is available:</p>
+<ol><li>a value typed on the record;</li>
+<li>the species mean from the Global Wood Density Database v2;</li>
+<li>the genus mean from the same database;</li>
+<li>the default of 0.619 g/cm³ (Chidumayo 2012), which can be changed in settings.</li></ol>
+<p>The source used is saved with the record and exported. Wood density only affects models that use ρ.</p>
+
+<h2 id="carbon">Carbon and CO₂e</h2>
+<div class="eq">AGC = AGB × CF &nbsp;&nbsp; BGC = BGB × CF &nbsp;&nbsp; Total C = AGC + BGC<br>t CO₂e = t C × 44/12</div>
+<p>CF is the carbon fraction: 0.47 by default (IPCC 2006). It can be changed in settings; for example, Zambia's FREL uses 0.49. 44/12 is the ratio of the molecular weight of CO₂ to the atomic weight of carbon. All carbon is reported in tonnes.</p>
+
+<h2 id="stumps">Dead wood (stumps)</h2>
+<div class="eq">Volume (m³) = π × (D/200)² × H &nbsp;&nbsp; Biomass (kg) = Volume × ρ<sub>dw</sub> &nbsp;&nbsp; C (kg) = Biomass × CF</div>
+<p>D is the stump diameter in cm and H its height in m. ρ<sub>dw</sub> is the dead-wood density, 619 kg/m³ by default and editable in settings. A legacy formula switch in settings reproduces an older spreadsheet method for comparison.</p>
+
+<h2 id="perha">Per-hectare values</h2>
+<p>Each section is divided by its own circle area:</p>
+<div class="eq">A (m²) = π × r² &nbsp;&nbsp; t C/ha = (Σ kg C ÷ A) × 10<br>Plot t C/ha = saplings + trees + dead wood &nbsp;&nbsp; Regeneration stems/ha = N ÷ A × 10,000</div>
+
+<h2 id="stats">Averages and confidence</h2>
+<p>For n plots in a group (stratum, site or all plots), with plot values x:</p>
+<div class="eq">mean = Σx ÷ n &nbsp;&nbsp; SD = √(Σ(x − mean)² ÷ (n − 1)) &nbsp;&nbsp; SE = SD ÷ √n<br>95% CI = mean ± t<sub>0.05, n−1</sub> × SE</div>
+<p>The t value comes from Student's t distribution, so small samples get wider intervals.</p>
+
+<h2 id="estimate">Project estimate</h2>
+<p>Enter the area (ha) of each stratum on the dashboard. The stratified estimate is:</p>
+<div class="eq">Total (t C) = Σ A<sub>h</sub> × mean<sub>h</sub> &nbsp;&nbsp; SE<sub>total</sub> = √Σ (A<sub>h</sub>² × SE<sub>h</sub>²)<br>90% CI = t<sub>0.10, df</sub> × SE<sub>total</sub> &nbsp;&nbsp; df = smallest n − 1 among strata with an area</div>
+<p>The app also gives the total in t CO₂e, the CI as a percentage, and the lower 90% bound. This estimate is indicative; check it against your methodology's uncertainty rules.</p>
+
+<h2 id="qa">Data quality checks</h2>
+<ul><li>plots without a coordinate, or with GPS accuracy worse than the setting;</li>
+<li>plots with no records;</li>
+<li>saplings or trees in the wrong DBH class;</li>
+<li>heights outside 1.3–45 m, and DBH over 150 cm;</li>
+<li>stems where a fallback model was used, or outside the model's DBH range;</li>
+<li>records with no scientific name.</li></ul>
+<p>Tap a check to open the plot or record.</p>
+
+<h2 id="exports">Exports</h2>
+<p>All coordinates are WGS84 (EPSG:4326) decimal degrees, to 6 decimal places.</p>
+<ul><li><b>Excel workbook with formulas (.xlsx)</b>: see below.</li>
+<li><b>CSV</b>: plot summary, regeneration, saplings, trees and stumps, separately or together as a ZIP. Stem files include wood density and its source, the models used, and fallback and range flags.</li>
+<li><b>KML</b>: plot centres and nested ring polygons, for Google Earth or QGIS, with GPS accuracy.</li>
+<li><b>GPX</b>: plot-centre waypoints for handheld GPS units.</li>
+<li><b>JSON backup</b>: everything, to restore or merge on another device. Cloud passwords are never included.</li></ul>
+
+<h2 id="excel">Excel workbook</h2>
+<p>The workbook recalculates on its own: every result is a live Excel formula, so verifiers can trace each number.</p>
+<div class="tbl"><table><tr><th>Sheet</th><th>Contents</th></tr>
+<tr><td>Read me</td><td>Export details, colour key and sheet list</td></tr>
+<tr><td>Plots</td><td>One row per plot: location, radii, circle areas (=PI()*r^2), totals using SUMIFS over the record sheets, t C/ha per pool, total and t CO₂e/ha</td></tr>
+<tr><td>Regeneration, Saplings, Trees, Stumps</td><td>One row per record: DBH from circumference, AGB from the plot's model (with the fallback when height is missing), BGB, carbon, t CO₂e and t C/ha</td></tr>
+<tr><td>Summary</td><td>Means, SD, SE and 95% CI by stratum, site and overall</td></tr>
+<tr><td>Estimate</td><td>Stratified total with a 90% CI; stratum areas are yellow cells you can edit</td></tr>
+<tr><td>Parameters</td><td>Named cells P_CF, P_RS, P_WD, P_DW, P_CO2 and others. Change one and the whole workbook recalculates</td></tr>
+<tr><td>Models</td><td>Every equation with its Excel form, valid range and reference</td></tr></table></div>
+<p>Colours: blue for field measurements, black for formulas, green for links to another sheet, and yellow for values you may change. The workbook uses only functions available in Excel 2007 and later, LibreOffice and Google Sheets.</p>
+
+<h2 id="lite">Lite app</h2>
+<p>Lite walks through one plot at a time: Plot → Young plants → Small trees → Big trees → Stumps → Result. It uses the default method (Chidumayo 2012, R:S 0.28, CF 0.47, 619 kg/m³) and lets the user set the plot radii. Measurements are entered with a tape around the trunk, or with a diameter tape. The app warns when a stem belongs in another size class.</p>
+<p>Lite exports one Excel workbook (sheets: Plot summary, Young plants, Small trees, Big trees, Stumps, About), a single CSV table with a <i>Record type</i> column, and a data file. The data file is opened in the full app with <b>Export &amp; settings → Restore / merge backup</b>.</p>
+
+<h2 id="backup">Sharing and backup</h2>
+<ul><li><b>Share data</b> (full app) and <b>Share Excel file</b> (Lite) open the phone's share list: WhatsApp, email, Bluetooth, Google Drive, OneDrive, Teams and so on.</li>
+<li>Android Chrome only lets web apps share some file types (CSV and text, but not Excel). On Android, an Excel file is saved first and then sent from the Files app, or the data is shared as CSV. iPhones share Excel files directly.</li>
+<li><b>Automatic cloud backup</b> (full app): connect Google Drive (through a small Google Apps Script in your own account) or OneDrive (Microsoft sign-in). After changes, a JSON backup and CSV files are uploaded to your own storage.</li></ul>
+
+<h2 id="gps">GPS accuracy</h2>
+<p>The app only accepts fixes at or better than the required accuracy: ±4 m by default, adjustable from 0.1 to 4 m. Up to 20 accepted fixes are averaged, weighted by 1/accuracy², and the plot stores the achieved accuracy and number of fixes. If the limit isn't reached, <b>Use best fix so far</b> appears, and plots saved that way are flagged. Sub-metre accuracy needs an external GNSS receiver; on Android, set it as the mock location provider.</p>
+<p><b>Troubleshooting:</b> location only works over https or in the installed app. If permission is blocked, allow Location for the browser or app in the phone settings. Under heavy canopy, wait in a clearing, or paste coordinates. Decimal degrees, degrees-minutes-seconds and Google Maps links are all accepted.</p>
+
+<h2 id="species">Species list</h2>
+<p>The app has 2,561 names for 702 tree species. Local names are in Bemba, Nyanja, Tonga, Lozi, Kaonde, Lunda, Kunda, Senga and Tumbuka, alongside English and scientific names. Where one local name is used for several species, all of them are shown. The scientific name fills in automatically only when the match is certain. Wood density is matched for 653 species: 393 at species level and 260 at genus level.</p>
+
+<h2 id="settings">Settings</h2>
+<ul><li>default allometric model, root model and custom coefficients a and b;</li>
+<li>carbon fraction, root-to-shoot ratio, default wood density and dead-wood density;</li>
+<li>default plot radii, and the DBH thresholds for saplings and trees;</li>
+<li>required GPS accuracy;</li>
+<li>project sites and districts, and strata;</li>
+<li>cloud backup, data restore and merge, and deleting all data.</li></ul>
+
+<h2 id="install">Installing the app</h2>
+<ol><li><b>Host it</b>: put the app's <code>www</code> folder on any https host, such as Netlify, GitHub Pages or your own server. The Lite app sits in <code>www/lite/</code>.</li>
+<li><b>Install on phones</b>: open the link in Chrome or Safari and choose <b>Add to Home screen</b>. It then works offline.</li>
+<li><b>Google Play</b>: package the hosted app with PWABuilder (Trusted Web Activity) and publish it through the Play Console.</li>
+<li><b>Updates</b>: re-upload the files. Installed apps update the next time they go online.</li></ol>
+
+<h2 id="privacy">Data and privacy</h2>
+<p>All data stays in the browser storage on the device until the user exports, shares or backs it up. Cloud backups go only to the user's own Google Drive or OneDrive. The app collects no personal data, and location is used only to record plot coordinates. Clearing the browser or uninstalling removes local data, so back up first.</p>
+
+<h2 id="refs">References</h2>
+<ol style="font-size:15px">
+<li>Chidumayo, E.N. (2012). <i>Assessment of existing models for biomass and volume calculations for Zambia</i>. Report. Cited in Zambia's FREL as the source of AGB = exp(2.342 ln D − 2.059) and of the 0.619 g/cm³ wood density.</li>
+<li>Chave, J., Andalo, C., Brown, S., et al. (2005). Tree allometry and improved estimation of carbon stocks and balance in tropical forests. <i>Oecologia</i> 145(1), 87–99. <a href="https://doi.org/10.1007/s00442-005-0100-x">doi:10.1007/s00442-005-0100-x</a></li>
+<li>Chave, J., Réjou-Méchain, M., Búrquez, A., Chidumayo, E., et al. (2014). Improved allometric models to estimate the aboveground biomass of tropical trees. <i>Global Change Biology</i> 20(10), 3177–3190. <a href="https://doi.org/10.1111/gcb.12629">doi:10.1111/gcb.12629</a></li>
+<li>Mugasha, W.A., et al. (2013). Allometric models for prediction of above- and belowground biomass of trees in the miombo woodlands of Tanzania. <i>Forest Ecology and Management</i> 310, 87–101.</li>
+<li>Kachamba, D.J., Eid, T. and Gobakken, T. (2016). Above- and belowground biomass models for trees in the miombo woodlands of Malawi. <i>Forests</i> 7(2), 38. <a href="https://doi.org/10.3390/f7020038">doi:10.3390/f7020038</a></li>
+<li>Ryan, C.M., Williams, M. and Grace, J. (2011). Above- and belowground carbon stocks in a miombo woodland landscape of Mozambique. <i>Biotropica</i> 43(4), 423–432. <a href="https://doi.org/10.1111/j.1744-7429.2010.00713.x">doi:10.1111/j.1744-7429.2010.00713.x</a></li>
+<li>IPCC (2006). <i>2006 IPCC Guidelines for National Greenhouse Gas Inventories</i>, Volume 4, Chapter 4: Forest Land. Table 4.3 (carbon fraction 0.47), Table 4.4 (root-to-shoot ratio). <a href="https://www.ipcc-nggip.iges.or.jp/public/2006gl/vol4.html">ipcc-nggip.iges.or.jp</a></li>
+<li>Republic of Zambia, Ministry of Green Economy and Environment (2021). <i>Forest Reference Emissions Level</i>, modified submission to the UNFCCC. <a href="https://redd.unfccc.int/files/zambia_frel_modified_2021.pdf">redd.unfccc.int</a></li>
+<li>Fischer, F.J., et al. (2026). Global Wood Density Database v.2. Zenodo. <a href="https://doi.org/10.5281/zenodo.18262736">doi:10.5281/zenodo.18262736</a>. Taken from the BIOMASS R package, <a href="https://github.com/umr-amap/BIOMASS">github.com/umr-amap/BIOMASS</a>.</li>
+<li>Verra (2023). <i>VMD0001: Estimation of carbon stocks in the above- and belowground biomass in live tree and non-tree pools</i>, v1.2.</li>
+<li>Brooks, G. (2020). <i>Mr. Garry's Collection of Zambian Trees</i>. African Community Project. ISBN 978-0-9918693-9-8.</li>
+<li>Orwa, C., Mutua, A., Kindt, R., Jamnadass, R. and Simons, A. (2009). <i>Agroforestree Database: a tree reference and selection guide</i>, version 4.0. World Agroforestry Centre (ICRAF), Kenya.</li>
+</ol>
+</div></div></div><footer><div class="wrap"><div>© 2026 Biomass Field Sampler. All rights reserved.<br>Demo data on this site is made up.<br>Contact: <a href="mailto:morrischanda86@gmail.com">morrischanda86@gmail.com</a> · <a href="mailto:momocarbon86@gmail.com">momocarbon86@gmail.com</a></div>
+<div><a href="index.html">Home</a> · <a href="tutorial.html">Tutorial</a> · <a href="docs.html">Documentation</a> · <a href="demo.html">Demo</a> · <a href="mailto:morrischanda86@gmail.com,momocarbon86@gmail.com">Contact</a></div></div></footer></body></html>
